@@ -1,0 +1,13 @@
+POLICY SERVER CODE REQUIREMENTS
+-------------------------------
+
+1. Copy your part 2 policy server code to this directory
+2. You may not use any non-standard C++ library except the rapidjson located at ../lib/rapidjson
+3. Make sure your code can be compiled through a single `make` operation
+4. Make sure your code can be cleaned through a single `make clean` operation
+5. Make sure your policy server program is named AdvPolicyServer
+6. Your policy server should not expect any command line arguments
+7. Make sure your policy server program can be started through our run-policy-server.sh
+
+Thanks!
+
