@@ -1,0 +1,80 @@
+#!/bin/bash -u
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+YARN_EC2_SUBMIT_DIR="$(cd `dirname "$0"` && pwd -P)"
+export YARN_TEST_ID=${1:-"test-a"}
+
+export YARN_SRC_TREE=$YARN_EC2_SUBMIT_DIR/src
+SCRIPT_PATH=$YARN_EC2_SUBMIT_DIR/run-policy-server.sh
+export YARN_RUN_DIR=`dirname $SCRIPT_PATH`
+export YARN_RUN_SCRIPT=`basename $SCRIPT_PATH`
+export YARN_OPTIONS=$YARN_SRC_TREE
+
+export YARN_REPLAY_DIR=$YARN_EC2_SUBMIT_DIR
+export YARN_REPLAY_SCRIPT=replay-trace-v2-update1
+export YARN_JOB_CONFIG=job-conf-r4.4xlarge.json
+
+JOB_TRACE=
+case $YARN_TEST_ID in
+    test-a)
+        JOB_TRACE=test-job-trace-mixed-60a-v2.txt
+        ;;
+    test-b)
+        JOB_TRACE=test-job-trace-mixed-60b-v2.txt
+        ;;
+    test-c)
+        JOB_TRACE=test-job-trace-mixed-60c-v2.txt
+        ;;
+    *)
+        echo 'ERROR: unknown test case id: $YARN_TEST_ID'
+        exit 1
+        ;;
+esac
+
+export YARN_JOB_TRACE=$JOB_TRACE
+
+export TPZ_SEMESTER_NAME=s17
+export TPZ_COURSE_ID=advcc
+export TPZ_PROJECT_ID=p3p2
+export TPZ_TASK_ID=$YARN_TEST_ID
+
+echo '!!! P3P2 SUBMISSION !!!'
+echo '----------------------------------------------'
+echo 'RUN-SCRIPT :' $YARN_RUN_DIR/$YARN_RUN_SCRIPT
+echo 'SRC-CODE   :' $YARN_SRC_TREE
+echo 'TEST-ID    :' $YARN_TEST_ID
+echo '----------------------------------------------'
+echo ''
+
+while true; do
+    read -p "Continue (y/N)?" yn
+    case $yn in
+        y|Y) break
+           ;;
+        *) exit 1
+           ;;
+    esac
+done
+
+sudo apt-get install -y python-requests
+
+python -Wdefault "${YARN_EC2_SUBMIT_DIR}/submit.pyc" "$@"
+
+exit 0
